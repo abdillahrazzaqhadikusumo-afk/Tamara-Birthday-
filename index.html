@@ -456,6 +456,46 @@
 .cnt b { display: block; font-family: var(--display); font-weight: 700; font-size: 1.9rem; line-height: 1.1; color: var(--accent); }
 .cnt span { display: block; font-size: .95rem; }
 @media (prefers-reduced-motion: reduce) { .love-scene .beat { animation: none; } }
+/* Voice message */
+.voice { background: var(--paper); color: var(--lit-ink); max-width: 38rem; margin: 0 auto; padding: 1.4rem 1.3rem; border-radius: 6px; box-shadow: 0 8px 22px rgba(20, 8, 4, .25); }
+.voice-row { display: flex; align-items: center; gap: 1rem; }
+.play { flex: 0 0 auto; width: 4rem; height: 4rem; border-radius: 50%; border: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #B3273B, #7A1524); color: #F3E6C4; font-size: 1.4rem; display: grid; place-items: center; box-shadow: 0 3px 8px rgba(0, 0, 0, .35); -webkit-tap-highlight-color: transparent; }
+.play:disabled { opacity: .5; cursor: default; }
+.vbar { flex: 1; min-width: 0; }
+.vseek { padding: .7rem 0; cursor: pointer; }
+.vtrack { height: .7rem; border-radius: 99px; background: rgba(43, 26, 18, .18); overflow: hidden; }
+.vfill { height: 100%; width: 0; background: var(--accent); border-radius: 99px; }
+.vtime { display: flex; justify-content: space-between; font-size: .95rem; }
+.voice-note { margin: 1rem 0 0; text-align: center; font-style: italic; }
+
+/* Quiz */
+.quiz { background: var(--paper); color: var(--lit-ink); max-width: 38rem; margin: 0 auto; padding: 1.5rem 1.3rem 1.6rem; border-radius: 6px; box-shadow: 0 8px 22px rgba(20, 8, 4, .25); }
+.q-count { font-family: var(--display); font-size: .85rem; color: var(--accent); margin: 0 0 .5rem; }
+.q-text { font-family: var(--display); font-weight: 700; font-size: 1.2rem; line-height: 1.3; margin: 0 0 1.1rem; }
+.q-opts { display: grid; gap: .6rem; }
+.q-opt { font: inherit; text-align: left; width: 100%; background: var(--lit-bg); color: var(--lit-ink); border: 2px solid transparent; border-radius: 6px; padding: .75rem .9rem; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .2s, border-color .2s; }
+.q-opt:hover:not(:disabled) { border-color: var(--accent); }
+.q-opt:disabled { cursor: default; }
+.q-opt.right { background: var(--gold); border-color: #8F6A15; }
+.q-opt.wrong { background: #E7B4B4; border-color: var(--accent); }
+.q-feedback { min-height: 1.6em; margin: .9rem 0 0; font-style: italic; }
+.q-next, .q-again { font: inherit; font-weight: 700; background: var(--accent); color: #F3E6C4; border: 0; border-radius: 999px; padding: .7rem 1.5rem; cursor: pointer; margin-top: .6rem; }
+.q-result { text-align: center; }
+.q-score { font-family: var(--display); font-weight: 900; font-size: 2.6rem; color: var(--accent); margin: 0 0 .4rem; line-height: 1.1; }
+
+/* Bucket list */
+.bucket { background: var(--paper); color: var(--lit-ink); max-width: 38rem; margin: 0 auto; padding: 1.1rem 1.3rem 1.3rem; border-radius: 6px; box-shadow: 0 8px 22px rgba(20, 8, 4, .25); }
+.bucket ul { list-style: none; margin: 0; padding: 0; }
+.bucket li + li { border-top: 1px dashed rgba(140, 28, 44, .35); }
+.bk { position: relative; display: flex; align-items: center; gap: .9rem; padding: .85rem 0; cursor: pointer; }
+.bk input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tick { flex: 0 0 auto; width: 1.7rem; height: 1.7rem; border: 2.5px solid var(--accent); border-radius: 5px; display: grid; place-items: center; color: transparent; font-size: 1rem; line-height: 1; transition: background-color .2s, color .2s, transform .2s; }
+.bk input:checked + .tick { background: var(--accent); color: #F3E6C4; transform: scale(1.08); }
+.bk input:focus-visible + .tick { outline: 3px solid var(--flame); outline-offset: 3px; }
+.bk input:checked ~ .bk-text { opacity: .6; text-decoration: line-through; text-decoration-color: var(--accent); }
+.bucket-count { text-align: center; margin: 1rem 0 0; font-style: italic; }
+
+@media (prefers-reduced-motion: reduce) { .q-opt, .tick { transition: none; } }
 </style>
 </head>
 <body>
@@ -1134,6 +1174,193 @@
   }
   tick();
   setInterval(tick, 1000);
+})();
+/* Small helper for the three new sections */
+function makeSection(title) {
+  const s = document.createElement('section');
+  s.className = 'block';
+  s.innerHTML = '<h2>' + esc(title) + '</h2>';
+  return s;
+}
+
+/* ---------- 1. Voice message ---------- */
+(function () {
+  /* ===== EDIT THIS PART ===== */
+  const VOICE = {
+    heading: "You want your ears blessed?",
+    caption: "Close your eyes and listen to me...."
+  };
+  /* ========================== */
+
+  const sec = makeSection(VOICE.heading);
+  sec.insertAdjacentHTML('beforeend',
+    '<div class="voice"><div class="voice-row">' +
+    '<button class="play" type="button" aria-label="Play the message" disabled>&#9654;</button>' +
+    '<div class="vbar"><div class="vseek"><div class="vtrack"><div class="vfill"></div></div></div>' +
+    '<div class="vtime"><span class="vnow">0:00</span><span class="vtotal">0:00</span></div></div>' +
+    '</div><p class="voice-note"></p></div>');
+
+  const target = document.querySelector('.notes') ||
+    (document.querySelector('.song') && document.querySelector('.song').closest('section')) || $('finish');
+  target.parentNode.insertBefore(sec, target);
+
+  const btn = sec.querySelector('.play');
+  const fill = sec.querySelector('.vfill');
+  const now = sec.querySelector('.vnow');
+  const total = sec.querySelector('.vtotal');
+  const note = sec.querySelector('.voice-note');
+  note.textContent = VOICE.caption;
+
+  const audio = document.createElement('audio');
+  audio.preload = 'metadata';
+  ['voice.m4a', 'voice.mp3', 'voice.wav'].forEach((n) => {
+    const s = document.createElement('source');
+    s.src = n;
+    audio.appendChild(s);
+  });
+  audio.lastChild.addEventListener('error', () => {
+    note.textContent = 'Your voice message goes here. Upload it as voice.m4a or voice.mp3.';
+  });
+
+  const fmt = (t) => {
+    if (!isFinite(t)) return '0:00';
+    const m = Math.floor(t / 60), s = Math.floor(t % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  };
+  audio.addEventListener('loadedmetadata', () => { btn.disabled = false; total.textContent = fmt(audio.duration); });
+  audio.addEventListener('timeupdate', () => {
+    now.textContent = fmt(audio.currentTime);
+    fill.style.width = (audio.duration ? (audio.currentTime / audio.duration) * 100 : 0) + '%';
+  });
+  audio.addEventListener('play', () => { btn.innerHTML = '&#10074;&#10074;'; btn.setAttribute('aria-label', 'Pause the message'); });
+  audio.addEventListener('pause', () => { btn.innerHTML = '&#9654;'; btn.setAttribute('aria-label', 'Play the message'); });
+  audio.addEventListener('ended', () => { audio.currentTime = 0; fill.style.width = '0%'; });
+
+  btn.addEventListener('click', () => {
+    if (audio.paused) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+    else audio.pause();
+  });
+  sec.querySelector('.vseek').addEventListener('click', (e) => {
+    if (!isFinite(audio.duration)) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration;
+  });
+})();
+
+/* ---------- 2. Quiz: how well do you know us? ---------- */
+(function () {
+  /* ===== EDIT THIS PART =====
+     answer is the position of the right option:
+     0 = first, 1 = second, 2 = third, 3 = fourth */
+  const QUIZ = {
+    heading: "How well do you know us?",
+    questions: [
+      { q: "Where did we go to on our first date?", options: ["PIM", "Citos", "One Bell Park"], answer: 0 },
+      { q: "Where did i make the youre my honey joke?", options: ["Youre house", "Instagram DMs", "In Cikal"], answer: 1 },
+      { q: "[When is our anniversary?]", options: ["July 30th 2025", "June 31st 2025", "July 31st 2025"], answer: 2 },
+      { q: "[Where did we go to on our 1 year anniversary?]", options: ["Osteria Gia", "Kitchenette", "Sushi Tei"], answer: 0 },
+      { q: "Okay last one, hard one, when did i give you the sloth from flyingtiger? aka giggleshitter?", options: ["Before Prom", "After Prom", "January 2026"], answer: 1 }
+    ],
+    endings: {
+      great: "AYYY GOOD JOBB BABBYYY SO SMART, you know ball....",
+      ok: "Nice one babyy!",
+      low: "You do NOT know ball!"
+    },
+    yes: "Yes!! Nice onee sayangg.",
+    no: "its okay, i heard if you get one wrong you have to send me toe pictures...."
+  };
+  /* ========================== */
+
+  const sec = makeSection(QUIZ.heading);
+  const box = document.createElement('div');
+  box.className = 'quiz';
+  sec.appendChild(box);
+  $('finish').parentNode.insertBefore(sec, $('finish'));
+
+  let i = 0, score = 0;
+  const total = QUIZ.questions.length;
+
+  function render() {
+    if (i >= total) return result();
+    const q = QUIZ.questions[i];
+    box.innerHTML =
+      '<p class="q-count">Question ' + (i + 1) + ' of ' + total + '</p>' +
+      '<p class="q-text">' + esc(q.q) + '</p>' +
+      '<div class="q-opts">' + q.options.map((o, k) =>
+        '<button class="q-opt" type="button" data-k="' + k + '">' + esc(o) + '</button>').join('') + '</div>' +
+      '<p class="q-feedback" aria-live="polite"></p><div class="q-nav"></div>';
+    const opts = Array.from(box.querySelectorAll('.q-opt'));
+    opts.forEach((b) => b.addEventListener('click', () => {
+      const k = Number(b.dataset.k);
+      opts.forEach((o) => { o.disabled = true; });
+      if (opts[q.answer]) opts[q.answer].classList.add('right');
+      const fb = box.querySelector('.q-feedback');
+      if (k === q.answer) { score++; fb.textContent = QUIZ.yes; }
+      else { b.classList.add('wrong'); fb.textContent = QUIZ.no; }
+      const nb = document.createElement('button');
+      nb.type = 'button';
+      nb.className = 'q-next';
+      nb.textContent = i === total - 1 ? 'See my score' : 'Next question';
+      nb.addEventListener('click', () => { i++; render(); });
+      box.querySelector('.q-nav').appendChild(nb);
+    }));
+  }
+
+  function result() {
+    const pct = score / total;
+    const msg = pct >= 0.8 ? QUIZ.endings.great : pct >= 0.4 ? QUIZ.endings.ok : QUIZ.endings.low;
+    box.innerHTML =
+      '<div class="q-result"><p class="q-score">' + score + ' / ' + total + '</p>' +
+      '<p>' + esc(msg) + '</p><button class="q-again" type="button">Play again</button></div>';
+    box.querySelector('.q-again').addEventListener('click', () => { i = 0; score = 0; render(); });
+    burst(0.6);
+  }
+  render();
+})();
+
+/* ---------- 3. Things I want to do with you ---------- */
+(function () {
+  /* ===== EDIT THIS PART ===== */
+  const BUCKET = {
+    heading: "Activity lists hmmm...",
+    items: [
+      "Cuddle and kiss! MWAH",
+      "Holycow! when the food so you say holycow!",
+      "New years date!!",
+      "More photobooths please",
+      "A big long hug!",
+      "Play basketball again!"
+    ]
+  };
+  /* ========================== */
+
+  const KEY = 'tamara-bucket';
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { saved = []; }
+
+  const sec = makeSection(BUCKET.heading);
+  const card = document.createElement('div');
+  card.className = 'bucket';
+  card.innerHTML =
+    '<ul>' + BUCKET.items.map((t, n) =>
+      '<li><label class="bk"><input type="checkbox"' + (saved.indexOf(n) > -1 ? ' checked' : '') + '>' +
+      '<span class="tick">&#9829;</span><span class="bk-text">' + esc(t) + '</span></label></li>').join('') +
+    '</ul><p class="bucket-count"></p>';
+  sec.appendChild(card);
+  $('finish').parentNode.insertBefore(sec, $('finish'));
+
+  const boxes = Array.from(card.querySelectorAll('input'));
+  const count = card.querySelector('.bucket-count');
+  function update() {
+    const n = boxes.filter((b) => b.checked).length;
+    count.textContent = n === boxes.length ? 'All done. Every single one, together.' : n + ' of ' + boxes.length + ' ticked off';
+    try { localStorage.setItem(KEY, JSON.stringify(boxes.map((b, k) => (b.checked ? k : -1)).filter((x) => x > -1))); } catch (e) {}
+  }
+  boxes.forEach((b) => b.addEventListener('change', () => {
+    update();
+    if (b.checked && boxes.every((x) => x.checked)) burst(0.6);
+  }));
+  update();
 })();
 </script>
 </body>
