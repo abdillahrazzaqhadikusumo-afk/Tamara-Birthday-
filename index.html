@@ -348,6 +348,66 @@
   100% { transform: translate(var(--dx), calc(-1 * var(--rise))) scale(1.1) rotate(12deg); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .hearts { display: none; } }
+.boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.1rem; }
+.pbox {
+  position: relative;
+  width: calc(50% - .55rem);
+  background: var(--paper);
+  color: var(--lit-ink);
+  font: inherit;
+  text-align: center;
+  border: 0;
+  padding: .6rem .6rem .5rem;
+  border-radius: 4px;
+  box-shadow: 0 8px 22px rgba(20, 8, 4, .25);
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  transition: transform .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pbox:nth-child(even) { transform: rotate(1.5deg); }
+.pbox:hover { transform: translateY(-4px) rotate(0); }
+.pbox .frame { aspect-ratio: 1; font-size: 1.4rem; color: var(--accent); }
+.pbox .name { display: block; margin-top: .55rem; font-family: var(--display); font-size: .85rem; line-height: 1.25; }
+.pbox::after {
+  content: "\2665";
+  position: absolute; top: -.5rem; right: -.4rem;
+  width: 1.9rem; height: 1.9rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #B3273B, #7A1524);
+  color: #F3E6C4;
+  display: grid; place-items: center;
+  font-size: .95rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+  transition: opacity .3s ease;
+}
+.pbox.read::after { opacity: .45; }
+@media (min-width: 52rem) { .pbox { width: calc(25% - .85rem); } }
+
+.note-dialog { border: 0; padding: 0; background: transparent; max-width: none; overflow: visible; }
+.note-dialog::backdrop { background: rgba(12, 16, 36, .7); }
+.note-dialog[open] { animation: pop .35s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes pop { from { opacity: 0; transform: scale(.92) translateY(10px); } to { opacity: 1; transform: none; } }
+.note {
+  position: relative;
+  display: flex; gap: 1.1rem; align-items: flex-start;
+  background: var(--paper);
+  color: var(--lit-ink);
+  width: min(92vw, 34rem);
+  max-height: 82vh;
+  overflow: auto;
+  padding: 1.4rem 1.3rem 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .5);
+}
+.note-pic { flex: 0 0 38%; }
+.note-pic img { width: 100%; height: auto; display: block; border-radius: 3px; }
+.note-pic .frame { aspect-ratio: 1; font-size: 1.6rem; color: var(--accent); }
+.note-body { flex: 1; min-width: 0; }
+.note-body h3 { font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1.25; margin: 0 0 .6rem; padding-right: 1.6rem; }
+.note-body p { margin: 0; white-space: pre-line; font-style: italic; font-size: 1.15rem; }
+.note-close { position: absolute; top: .4rem; right: .5rem; background: none; border: 0; font-size: 1.7rem; line-height: 1; cursor: pointer; color: var(--lit-ink); padding: .2rem .5rem; }
+@media (prefers-reduced-motion: reduce) { .note-dialog[open] { animation: none; } .pbox { transition: none; } }
 </style>
 </head>
 <body>
@@ -750,6 +810,65 @@
   $('cupcake').addEventListener('click', () => {
     if (reduce) return;
     for (let i = 0; i < 24; i++) setTimeout(heart, i * 90);
+  });
+})();
+/* Messages from the plushies */
+(function () {
+  /* ===== EDIT THIS PART: name and message for each plushie ===== */
+  const PLUSHIE_NOTES = {
+    heading: "Messages from the plushies",
+    notes: [
+      { photo: "plushie1", name: "[Timmy]", message: "[HEY Mom, I hope you have a beautiful wonderful birthday! also dad snores a lot.]" },
+      { photo: "plushie2", name: "[LeBron James]", message: "[Tamara Tamara Tamara Tamara! We misss youuu.]" },
+      { photo: "plushie3", name: "[Bara]", message: "[HEYY birthday girl! Me and dad miss you a lot!, i cant wait to meet lillie, also im hungry, i might eat dads foods at night, dont tell him....]" },
+      { photo: "plushie4", name: "[Mojo]", message: "[Basketball... Dad sometimes throw me and acts like hes actually Stephen Curry, hes not.. Anyways I LOVE YOU MOM.]" },
+      { photo: "plushie5", name: "[Dojo]", message: "[Me and Mojo sometimes wonder if dad is refering to us when he says he got 4 balls...]" },
+      { photo: "plushie6", name: "[Buldak]", message: "[I MISS MY SISTER, please bring her back !.]" },
+      { photo: "plushie7", name: "[Dummy]", message: "[Dads a bit fat dummy, HEY MOM, i remember when you got me.. You were very wonderful!, we miss youu a lottt.]" }
+    ]
+  };
+  /* ============================================================= */
+
+  const sec = document.createElement('section');
+  sec.className = 'block notes';
+  sec.innerHTML = `<h2>${esc(PLUSHIE_NOTES.heading)}</h2><div class="boxes"></div>`;
+  const boxes = sec.querySelector('.boxes');
+  const song = document.querySelector('.song');
+  const before = song ? song.closest('section') : $('finish');
+  before.parentNode.insertBefore(sec, before);
+
+  const dlg = document.createElement('dialog');
+  dlg.className = 'note-dialog';
+  dlg.innerHTML =
+    '<div class="note"><button class="note-close" type="button" aria-label="Close">&times;</button>' +
+    '<div class="note-pic"></div><div class="note-body"><h3></h3><p></p></div></div>';
+  document.body.appendChild(dlg);
+  const pic = dlg.querySelector('.note-pic');
+  const title = dlg.querySelector('h3');
+  const msg = dlg.querySelector('.note-body p');
+  const close = () => (dlg.close ? dlg.close() : dlg.removeAttribute('open'));
+  dlg.querySelector('.note-close').addEventListener('click', close);
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+
+  PLUSHIE_NOTES.notes.forEach((n) => {
+    const who = n.name || 'A plushie';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pbox';
+    b.setAttribute('aria-label', 'Open the message from ' + who);
+    b.innerHTML = `<div class="frame">&#10022;</div><span class="name">${esc(n.name || '')}</span>`;
+    boxes.appendChild(b);
+
+    let src = '';
+    probe(n.photo, (img) => { src = img.src; fillFrame(b.querySelector('.frame'), img, who); });
+
+    b.addEventListener('click', () => {
+      pic.innerHTML = src ? `<img src="${esc(src)}" alt="${esc(who)}">` : '<div class="frame">&#10022;</div>';
+      title.textContent = n.name || '';
+      msg.textContent = n.message || '';
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+      b.classList.add('read');
+    });
   });
 })();
 </script>
