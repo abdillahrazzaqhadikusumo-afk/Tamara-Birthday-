@@ -310,6 +310,28 @@
 }
 .song iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 2px; }
 .song-note { text-align: center; margin: 1.1rem 0 0; font-style: italic; }
+.side {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0px);
+  z-index: -1;
+  pointer-events: none;
+  height: min(58vh, 520px);
+  width: auto;
+  max-width: 22vw;
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(40px) scale(.85);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.2, .9, .3, 1.2);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
+}
+.side.on { opacity: 1; transform: none; }
+.side-left { left: max(.5rem, env(safe-area-inset-left, 0px)); transform-origin: bottom left; }
+.side-right { right: max(.5rem, env(safe-area-inset-right, 0px)); transform-origin: bottom right; }
+@media (max-width: 52rem) {
+  .side { height: 24vh; max-width: 32vw; }
+  .side.on { opacity: .9; }
+}
+@media (prefers-reduced-motion: reduce) { .side { transition: none; } }
 </style>
 </head>
 <body>
@@ -659,6 +681,22 @@
       setTimeout(() => s.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }), 300);
     }, reduce ? 0 : 300);
   });
+/* Side pictures that pop up beside the memory lane */
+['left', 'right'].forEach((side) => {
+  probe('side-' + side, (img) => {
+    img.className = 'side side-' + side;
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(img);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries.forEach((e) => img.classList.toggle('on', e.isIntersecting));
+      }, { threshold: 0 }).observe(lane);
+    } else {
+      img.classList.add('on');
+    }
+  });
+});
 </script>
 </body>
 </html>
