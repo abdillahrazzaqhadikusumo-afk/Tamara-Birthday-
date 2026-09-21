@@ -411,6 +411,41 @@
 .garden { margin-top: 3.5rem; }
 .garden h2 { margin-bottom: 1.25rem; }
 .scene { display: block; width: 100%; max-width: 34rem; height: auto; margin: 0 auto; color: var(--ink); overflow: visible; }
+.me-box {
+  position: relative;
+  display: block;
+  width: min(100%, 20rem);
+  margin: 3.5rem auto 0;
+  background: var(--paper);
+  color: var(--lit-ink);
+  font: inherit;
+  text-align: center;
+  border: 0;
+  border-radius: 6px;
+  padding: .9rem .9rem 1.1rem;
+  box-shadow: 0 12px 30px rgba(20, 8, 4, .3);
+  cursor: pointer;
+  transform: rotate(-1deg);
+  transition: transform .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.me-box:hover { transform: translateY(-4px) rotate(0); }
+.me-box .frame { aspect-ratio: 1; font-size: 2rem; color: var(--accent); }
+.me-box .label { display: block; margin-top: .85rem; font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1.25; }
+.me-box::after {
+  content: "\2665";
+  position: absolute; top: -.7rem; right: -.6rem;
+  width: 2.4rem; height: 2.4rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #B3273B, #7A1524);
+  color: #F3E6C4;
+  display: grid; place-items: center;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+  transition: opacity .3s ease;
+}
+.me-box.read::after { opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .me-box { transition: none; } }
 </style>
 </head>
 <body>
@@ -961,6 +996,47 @@
   }
   showFace('Him', 'plushie8');
   showFace('Her', 'her-face');
+})();
+/* Message from me */
+(function () {
+  /* ===== EDIT THIS PART: your message ===== */
+  const MY_MESSAGE = {
+    label: "Message from Muhammad Abdillah Razzaq AKA Me LOL",
+    title: "[Dear Tamara]",
+    message: "[Dear Tamara, woahh, SOMEONES HAVING A BIRTHDAY TODAY, I hopee you have an absolutely amazing increadible birthday babyy, youre my cutiee, i absolutely adore that smile of yours, youre so cute and perfect. I wanna say im sorry if ive ever been annoying or bothered in any way! im trying to improve myself everyday and hopefully i can be the best boyfriend! Anyways, I LOVE YOUUU, have i told you how pretty you are? no? shiii i guess, you are absolutely gorgeous beautiful and adorable, i smile everysingle time you send me a pic, i love them, i always loook at pics of you at night, cause i miss you very muchh. HAPPY BIRTHDAY BABBYY MWAHHH, youre always gonna be my honey <3.]"
+  };
+  /* ======================================== */
+
+  const box = document.createElement('button');
+  box.type = 'button';
+  box.className = 'me-box';
+  box.setAttribute('aria-label', 'Open a message from me');
+  box.innerHTML = `<div class="frame">&#10022;</div><span class="label">${esc(MY_MESSAGE.label)}</span>`;
+  $('surprise').appendChild(box);
+
+  const dlg = document.createElement('dialog');
+  dlg.className = 'note-dialog';
+  dlg.innerHTML =
+    '<div class="note"><button class="note-close" type="button" aria-label="Close">&times;</button>' +
+    '<div class="note-pic"></div><div class="note-body"><h3></h3><p></p></div></div>';
+  document.body.appendChild(dlg);
+  const pic = dlg.querySelector('.note-pic');
+  const title = dlg.querySelector('h3');
+  const msg = dlg.querySelector('.note-body p');
+  const close = () => (dlg.close ? dlg.close() : dlg.removeAttribute('open'));
+  dlg.querySelector('.note-close').addEventListener('click', close);
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+
+  let src = '';
+  probe('plushie8', (img) => { src = img.src; fillFrame(box.querySelector('.frame'), img, 'Me'); });
+
+  box.addEventListener('click', () => {
+    pic.innerHTML = src ? `<img src="${esc(src)}" alt="Me">` : '<div class="frame">&#10022;</div>';
+    title.textContent = MY_MESSAGE.title || '';
+    msg.textContent = MY_MESSAGE.message || '';
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    box.classList.add('read');
+  });
 })();
 </script>
 </body>
