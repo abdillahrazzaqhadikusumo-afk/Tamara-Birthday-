@@ -299,7 +299,17 @@
     .flame, .fc, .fc i, .cupcake svg { animation: none; }
     :root.lit .smoke { animation: none; }
     body, #reveal, .surprise, .cupcake, .lane li { transition: none; }
-  }
+  }.song {
+  background: var(--paper);
+  padding: .6rem;
+  border-radius: 4px;
+  box-shadow: 0 8px 22px rgba(20, 8, 4, .25);
+  max-width: 38rem;
+  margin: 0 auto;
+  transform: rotate(-1deg);
+}
+.song iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 2px; }
+.song-note { text-align: center; margin: 1.1rem 0 0; font-style: italic; }
 </style>
 </head>
 <body>
@@ -381,6 +391,16 @@
       </div>
     </section>
 
+    <section class="block">
+  <h2>A song for you</h2>
+  <div class="song">
+    <iframe src="https://www.youtube-nocookie.com/embed/zDOILKOOUCo"
+      title="Iris by Goo Goo Dolls"
+      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="song-note">[Why this song is ours]</p>
+</section>
     <section class="block finish" id="finish">
       <h2>One more thing</h2>
 
