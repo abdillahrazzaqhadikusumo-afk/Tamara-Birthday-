@@ -332,6 +332,22 @@
   .side.on { opacity: .9; }
 }
 @media (prefers-reduced-motion: reduce) { .side { transition: none; } }
+.finish { position: relative; overflow: hidden; }
+.finish > *:not(.hearts) { position: relative; z-index: 1; }
+.hearts { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.heart {
+  position: absolute;
+  bottom: -30px;
+  line-height: 1;
+  opacity: 0;
+  animation: rise 7s ease-in forwards;
+}
+@keyframes rise {
+  0%   { transform: translate(0, 0) scale(.5) rotate(-10deg); opacity: 0; }
+  12%  { opacity: .9; }
+  100% { transform: translate(var(--dx), calc(-1 * var(--rise))) scale(1.1) rotate(12deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .hearts { display: none; } }
 </style>
 </head>
 <body>
@@ -697,6 +713,45 @@
     }
   });
 });
+/* Floating hearts around the cupcake and plushie frames */
+(function () {
+  const finish = $('finish');
+  const layer = document.createElement('div');
+  layer.className = 'hearts';
+  layer.setAttribute('aria-hidden', 'true');
+  finish.prepend(layer);
+
+  const colors = ['#B3273B', '#D9536A', '#E58AA0', '#C9982F', '#8C1C2C'];
+  function heart() {
+    const h = document.createElement('span');
+    h.className = 'heart';
+    h.textContent = '\u2665';
+    h.style.left = (Math.random() * 94 + 3) + '%';
+    h.style.fontSize = (14 + Math.random() * 22) + 'px';
+    h.style.color = colors[Math.floor(Math.random() * colors.length)];
+    h.style.setProperty('--rise', (finish.offsetHeight + 60) + 'px');
+    h.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+    h.style.animationDuration = (5 + Math.random() * 4) + 's';
+    layer.appendChild(h);
+    h.addEventListener('animationend', () => h.remove());
+  }
+
+  let timer = null;
+  const start = () => { if (!timer && !reduce) timer = setInterval(heart, 550); };
+  const stop = () => { clearInterval(timer); timer = null; };
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? start() : stop()));
+    }, { threshold: 0 }).observe(finish);
+  }
+
+  // Extra burst when she taps the cupcake
+  $('cupcake').addEventListener('click', () => {
+    if (reduce) return;
+    for (let i = 0; i < 24; i++) setTimeout(heart, i * 90);
+  });
+})();
 </script>
 </body>
 </html>
