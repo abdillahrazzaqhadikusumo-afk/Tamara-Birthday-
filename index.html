@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Happy Birthday</title>
+  <meta name="description" content="Blow out the candles.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Happy Birthday, Tamara">
+<meta property="og:description" content="Blow out the candles.">
+<meta property="og:image" content="https://github.com/abdillahrazzaqhadikusumo-afk/Tamara-Birthday-/preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
@@ -540,6 +546,10 @@
 
 @media (prefers-reduced-motion: reduce) { .shake { animation: none; } .mo { transition: none; } .scratch canvas { transition: none; } }
 .pic-title { font-family: var(--display); font-weight: 700; font-size: .8rem; line-height: 1.3; margin: 0 0 .5rem; color: var(--accent); }
+.fc-hit { position: absolute; left: -20px; top: -14px; width: 52px; height: 84px; background: none; border: 0; padding: 0; pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.secret { position: fixed; left: 50%; top: 50%; z-index: 30; width: min(88vw, 22rem); transform: translate(-50%, -50%) scale(.92); opacity: 0; pointer-events: none; background: var(--paper); color: var(--lit-ink); padding: 1.5rem 1.3rem; border-radius: 6px; box-shadow: 0 20px 50px rgba(0, 0, 0, .5); text-align: center; font-style: italic; font-size: 1.25rem; white-space: pre-line; transition: opacity .4s ease, transform .4s ease; }
+.secret.show { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .secret { transition: none; } }
 </style>
 </head>
 <body>
@@ -1582,7 +1592,7 @@ function makeSection(title) {
         return;
       }
       dTitle.textContent = n.label;
-            dPic.innerHTML = src ? '<img src="' + esc(src) + '" alt="' + esc(n.label) + '">' : '';
+            dPic.innerHTML = src ? '<p class="pic-title">' + esc(MONTHLY.picTitle) + '</p><img src="' + esc(src) + '" alt="' + esc(n.label) + '">' : '';
             dPic.style.display = src ? '' : 'none';
       dPic.style.display = src ? '' : 'none';
       dMsg.textContent = n.message || '';
@@ -1680,6 +1690,41 @@ function makeSection(title) {
       wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake');
     }
   });
+})();
+/* Hidden candle */
+(function () {
+  /* ===== EDIT THIS PART ===== */
+  const SECRET = {
+    message: " BOOOO, Im honestly very impressed you found this candle.... How did you know?! You stalking me? Anyways! Love i heard if you press mysterious candles and youre reading this.... you HAVE to send me toe pics.. and i get a hug when you see me in December!"
+  };
+  /* ========================== */
+
+  const candle = document.querySelectorAll('.fc')[3];
+  if (!candle) return;
+
+  const hit = document.createElement('button');
+  hit.type = 'button';
+  hit.className = 'fc-hit';
+  hit.setAttribute('aria-label', 'A secret candle');
+  candle.appendChild(hit);
+
+  const card = document.createElement('div');
+  card.className = 'secret';
+  card.setAttribute('role', 'status');
+  card.textContent = SECRET.message;
+  document.body.appendChild(card);
+
+  let timer = 0;
+  function hide() { card.classList.remove('show'); clearTimeout(timer); }
+
+  hit.addEventListener('click', () => {
+    card.classList.add('show');
+    burst(0.4);
+    clearTimeout(timer);
+    timer = setTimeout(hide, 8000);
+  });
+  card.addEventListener('click', hide);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
 })();
 </script>
 </body>
