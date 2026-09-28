@@ -1532,7 +1532,7 @@ function makeSection(title) {
     intro: "The next message opens in",
     allOpen: "Every note is open now.",
     notes: [
-      { label: "October",  unlock: "2026-10-01T00:00:00", message: "[Write your October note here.]" },
+      { label: "October",  unlock: "2026-10-01T00:00:00", message: "Heyy Heyy babyy, How are youu? how was your september!? Hopefully it was good! I wanna say that you are absolutely adorable! You just sent me a picture of Lillie and you in bed, super duper cuteee! I LOVE YOU, I hope October is a very W month for you babyy and its gonna be our 15 MONTH ANNIVERSARY YAYYY, i loveee youu! i misss you soo muchh!" },
       { label: "November", unlock: "2026-11-01T00:00:00", message: "[Write your November note here.]" },
       { label: "December", unlock: "2026-12-01T00:00:00", message: "[Write your December note here.]" },
       { label: "January",  unlock: "2027-01-01T00:00:00", message: "[Write your January note here.]" },
@@ -1558,6 +1558,10 @@ function makeSection(title) {
   document.body.appendChild(dlg);
   const dTitle = dlg.querySelector('h3');
   const dMsg = dlg.querySelector('.note-body p');
+    const dPic = document.createElement('div');
+  dPic.className = 'note-pic';
+  dPic.style.display = 'none';
+  dlg.querySelector('.note').insertBefore(dPic, dlg.querySelector('.note-body'));
   const close = () => (dlg.close ? dlg.close() : dlg.removeAttribute('open'));
   dlg.querySelector('.note-close').addEventListener('click', close);
   dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
@@ -1566,6 +1570,8 @@ function makeSection(title) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'mo locked';
+        let src = '';
+    if (n.photo) probe(n.photo, (img) => { src = img.src; });
     b.innerHTML = '<span class="m-ico"></span><span class="m-name">' + esc(n.label) + '</span><span class="m-state"></span>';
     grid.appendChild(b);
     b.addEventListener('click', () => {
@@ -1574,6 +1580,8 @@ function makeSection(title) {
         return;
       }
       dTitle.textContent = n.label;
+            dPic.innerHTML = src ? '<img src="' + esc(src) + '" alt="' + esc(n.label) + '">' : '';
+      dPic.style.display = src ? '' : 'none';
       dMsg.textContent = n.message || '';
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
       b.classList.add('read');
