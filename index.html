@@ -1583,6 +1583,7 @@ function makeSection(title) {
       }
       dTitle.textContent = n.label;
             dPic.innerHTML = src ? '<img src="' + esc(src) + '" alt="' + esc(n.label) + '">' : '';
+            dPic.style.display = src ? '' : 'none';
       dPic.style.display = src ? '' : 'none';
       dMsg.textContent = n.message || '';
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
